@@ -12,24 +12,23 @@ commands:
             aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
 
-  # revert-migrations:
-  #   description: Revert the last migration if successfully run in the current workflow.
-  #   parameters:
-  #     # Add parameter here     
-  #   steps:
-  #     - run:
-  #         name: Revert migrations
-  #         # Add when this will run
-  #         command: |
-  #           # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-  #           SUCCESS = 1
-  #           if(( $SUCCESS==1 )); 
-  #           then
-  #           #  cd ~/project/backend
-  #           #  npm install
-  #           #  Add revert code here. You can find this in the Getting Started section.
-  #             exit 1
-  #           fi
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail # Add when this will run
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            
+            SUCCESS=$(curl --insecure https://kvdb.io/QFHNnzFytSwY47E8BUu7UE/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            echo $SUCCESS
+            if(( $SUCCESS == "1" )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
             
 jobs:
   build-frontend:
@@ -201,13 +200,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run:
-          name: Install awscli if for destroy-environment
-          command: |
-            sudo apt update 
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
       - run:
           name: Run migrations
           command: |
