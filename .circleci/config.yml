@@ -262,24 +262,24 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - run: yum install -y tar gzip 
+      - add_ssh_keys:
+          fingerprints:
+            - "80:d0:53:31:0f:bf:a5:e0:8b:6e:ac:f6:58:c7:a1:03"
       - attach_workspace:
-            at: ~/      
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-              curl -sL https://rpm.nodesource.com/setup_14.x | bash -
-              yum -y install nodejs
-      - run:
-          name: Install awscli and ansible
-          command: |
-              yum install -y awscli
-              amazon-linux-extras install epel -y
-              yum update -y
-              yum install -y ansible
+            apk add --update tar \
+              gzip \
+              ansible \
+              nodejs \
+              npm \
+              openssh-client
+            pip3 install awscli --upgrade
       - run:
           name: Deploy backend
           command: |
@@ -295,7 +295,6 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
-      - revert-migrations
 
   smoke-test:
     docker:
