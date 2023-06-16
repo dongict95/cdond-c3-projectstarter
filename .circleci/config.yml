@@ -286,12 +286,12 @@ jobs:
               cd backend
               npm i
               npm run build
-              cd ..
+              cd ../.circleci/ansible
               # zip backend
               tar -C backend -czvf artifact.tar.gz .
               ls -l artifact.tar.gz
               pwd
-              ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
+              ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment  
       - revert-migrations
 
