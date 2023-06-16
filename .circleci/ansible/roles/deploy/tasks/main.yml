@@ -1,15 +1,15 @@
 ---
-- name: copy the zipped artifact into the EC2 instance
-  become: yes
-  copy:
-    src: ~/project/artifact.tar.gz
-    dest: ~/artifact.tar.gz
-- name: extract the zipped artifact into the EC2 instance
-  become: true
-  command: tar -xvf ~/artifact.tar.gz
-- name: npm install
-  become: true
-  command: npm install
-- name: start the pm2
-  become: true
-  command: 'pm2 start npm -- start'
+- name: Creates backend directory
+  file:
+    path: ~/backend/
+    state: directory
+
+- name: Copy and unarchive artifact
+  unarchive:
+    src: ../../artifact.tar.gz
+    dest: ~/backend
+
+- name: Start PM2
+  shell: |
+    cd ~/backend/dist
+    pm2 start main.js
