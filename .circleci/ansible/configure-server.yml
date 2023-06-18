@@ -38,5 +38,5 @@
 #      changed_when: false
 #    - setup:
   roles:
-    # - configure-prometheus-node-exporter
+    - configure-prometheus-node-exporter
     - configure-server
